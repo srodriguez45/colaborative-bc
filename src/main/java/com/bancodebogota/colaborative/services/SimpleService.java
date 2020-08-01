@@ -1,7 +1,9 @@
 package com.bancodebogota.colaborative.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,26 +11,43 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bancodebogota.colaborative.models.ResponseModel;
+
 
 @RestController
 @RequestMapping(path = "/simple")
 public class SimpleService {
-
-	protected ResponseEntity<String> responseEntity;
+	 
+	@Autowired
+	private ResponseModel<String> response;
 	
-	@GetMapping(path = "")
+	@Value("${default.value}")
+	private String defaultValue;
+	
+	@SuppressWarnings("rawtypes")
+	@GetMapping(path = "response", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> simple() {
-		// TODO Auto-generated method stub
-		return ResponseEntity.ok("Welcome to Bancolombia");
+	public ResponseEntity<ResponseModel> simpleResponse() {
+		// TODO Auto-generated method stub		
+		return this.response(defaultValue);
+		
 	}
 	
-	@GetMapping(path = "/{name}")
+	@SuppressWarnings("rawtypes")
+	@GetMapping(path = "response/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> simpleByParam(@PathVariable("name") String name) {
+	public ResponseEntity<ResponseModel> simpleResponseByParam(@PathVariable("name") String name) {
 		// TODO Auto-generated method stub
-		String paramName = !name.isEmpty() ? name : "guest";
-		return ResponseEntity.ok("Welcome: " + paramName + " to Bancolombia");
+		
+		return this.response(name);
+		
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public ResponseEntity<ResponseModel> response(String name) {
+		response.setData(name);
+		response.setMsg(HttpStatus.OK.name());
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
 }
